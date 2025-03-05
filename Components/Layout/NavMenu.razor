@@ -1,30 +1,25 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">AppointmentUI</a>
+﻿<div class="flex flex-1 items-center justify-start">
+    <div class="flex shrink-0 items-center">
+        <h1 class="font-bold text-white">Appointment</h1>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<!-- Right side: Menu Items -->
+<div class="hidden sm:ml-6 sm:block">
+    <div class="flex space-x-4 pe-5">
+        <!-- Menu Links -->
+        <a href="/" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+            aria-current="page">Dashboard</a>
+        <a href="/appointments"
+            class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">My
+            Appointments</a>
+        <a href="/sessions"
+            class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">My
+            Sessions</a>
+        <a href="#"
+            class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Profile</a>
+        <a href="#"
+            class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Logout</a>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
+    </div>
 </div>
-
