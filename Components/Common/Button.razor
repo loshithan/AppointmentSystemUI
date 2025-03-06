@@ -1,5 +1,6 @@
 <!-- CustomButton.razor -->
 <button
+@attributes="AdditionalAttributes"
     class="bg-[#5333ed] w-25 hover:bg-[#2cd4d9] hover:text-[#111b6d] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-3 mb-3"
     @onclick="OnClick"
     type="button">
@@ -12,4 +13,7 @@
 
     [Parameter]
     public EventCallback OnClick { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object> AdditionalAttributes { get; set; } = new();
 }
