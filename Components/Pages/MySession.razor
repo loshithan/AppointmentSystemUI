@@ -1,12 +1,22 @@
 @page "/sessions"
 @rendermode InteractiveServer
+@inject IDialogService Dialog
+@code {
+    private Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return Dialog.ShowAsync<CreateSessionForm>("Simple Dialog", options);
+     }
+}
+
 
 <PageTitle>My Sessions</PageTitle>
 <h2 class=" text-4xl font-bold">My Sessions</h2>
 @* <button class="bg-blue-500 w-25 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-3 mb-3" type="button">
 Add Session      </button> *@
 <div class=" flex justify-end mb-3">
-<Button>Add Session</Button>
+<Button OnClick="OpenDialogAsync">Add Session</Button>
 
 </div>
 <Accordian/>

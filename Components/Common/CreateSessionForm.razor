@@ -1,0 +1,57 @@
+
+<MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
+    <TitleContent>
+        <p class="text-3xl font-bold">Add Session</p> <!-- Increased font size -->
+    </TitleContent>
+    <DialogContent>
+        <form>
+            <div class="flex flex-col gap-6 p-6"> <!-- Increased padding and gap -->
+                <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="doctorName"> <!-- Increased font size -->
+                        Doctor name
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
+                        id="username" type="text" placeholder="Doctor name">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="specialization"> <!-- Increased font size -->
+                        Appointment date
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
+                        id="username" type="text" placeholder="Appointment date">
+                </div>
+                 <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="specialization"> <!-- Increased font size -->
+                        Appointment start time
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
+                        id="username" type="text" placeholder="Appointment Date">
+                </div>
+                 <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="specialization"> <!-- Increased font size -->
+                        Appointment end time
+                    </label>
+                    <input
+                        class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
+                        id="username" type="text" placeholder="Appointment Date">
+                </div>
+            </div>
+        </form>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Submit">Add</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog.Cancel();
+}
