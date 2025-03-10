@@ -1,4 +1,12 @@
+@inject IDialogService Dialog
+@code {
+    private Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
 
+        return Dialog.ShowAsync<DialogBox>("Simple Dialog", options);
+     }
+}
 <div class=" mx-auto my-5">
     <div
         class="flex gap-3 bg-white border border-gray-300 rounded-xl overflow-hidden items-center justify-start mt-5 px-4">
@@ -25,9 +33,10 @@
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="text-gray-500 w-full">
                 <div class="flex items-center space-x-2">
-                  <Button  data-dialog-target="sign-in-modal">Available</Button> 
+                    <Button OnClick="OpenDialogAsync">Available</Button>
                 </div>
-                </p> 
+                
+                </p>
             </div>
 
 
@@ -36,4 +45,3 @@
     </div>
 
 </div>
-
