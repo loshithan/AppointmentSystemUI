@@ -1,5 +1,9 @@
 @using System.ComponentModel.DataAnnotations
 
+@inject HttpClient Http
+@inject IConfiguration Configuration
+
+
 <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
 <DataAnnotationsValidator/>
 <MudGrid>
@@ -47,6 +51,8 @@
 @code {
     RegisterAccountForm model = new RegisterAccountForm();
     bool success;
+    private string errorMessage;
+    private string baseUrl;
 
     public class RegisterAccountForm
     {
@@ -67,10 +73,36 @@
         public string Password2 { get; set; }
 
     }
-
-    private void OnValidSubmit(EditContext context)
+    protected override void OnInitialized()
     {
-        success = true;
+        // Retrieve the BaseUrl from appsettings.json
+        baseUrl = Configuration["ApiSettings:BaseUrl"];
+    }
+
+     private async Task OnValidSubmit(EditContext context)
+    {
+        try
+        {
+            // Replace with your actual API endpoint
+            var response = await Http.PostAsJsonAsync(baseUrl, model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                success = true;
+                errorMessage = null;
+            }
+            else
+            {
+                errorMessage = "Registration failed. Please try again.";
+                success = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An error occurred while registering. Please try again later.";
+            success = false;
+        }
+
         StateHasChanged();
     }
 }
