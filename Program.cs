@@ -9,6 +9,10 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+builder.Services.AddHttpClient(); // Register HttpClient
+
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration); // Register IConfiguration
+
 
 var app = builder.Build();
 

@@ -1,6 +1,46 @@
 @page "/appointments"
 @rendermode InteractiveServer
+@inject HttpClient Http
+@inject IConfiguration Configuration
+@code {
 
+  public List<Appointment> Appointments { get; set; } = new List<Appointment>();
+  public class Appointment
+  {
+      public Guid Id { get; set; } = Guid.NewGuid();
+        public string PatientId { get; set; }  // Foreign Key for Patient
+        public string ProfessionalId { get; set; }   // Foreign Key for Doctor
+        public DateTime AppointmentDate { get; set; }
+        public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
+  }
+    public enum AppointmentStatus
+    {
+        Pending,
+        Confirmed,
+        Canceled
+    }
+  protected override async Task OnInitializedAsync()
+  {
+    // Replace with your API endpoint
+    var baseUrl = Configuration["ApiSettings:BaseUrl"];
+    var apiUrl = $"{baseUrl}/api/Appointment";
+
+    try
+    {
+      // Fetch data from the API
+      var appointments = await Http.GetFromJsonAsync<List<Appointment>>(apiUrl);
+      Appointments = appointments;
+
+    }
+    catch (Exception ex)
+    {
+      // Handle errors (e.g., log or display a message)
+      Console.WriteLine($"Error fetching appointments: {ex.Message}");
+    }
+  }
+}
 <PageTitle>My Appointments</PageTitle>
 <h2 class=" text-4xl font-bold mt-5">My Appointments</h2>
 <form class="bg-[#dbd9d999] shadow-md rounded px-3 pt-6 pb-8 mb-4 mt-5">
@@ -47,6 +87,10 @@
   <Button>Add Appointment</Button>
 
 </div>
-<AppointmentCard />
-<AppointmentCard />
-<AppointmentCard />
+@{
+  foreach (var appointment in Appointments)
+  {
+    <AppointmentCard />
+  }
+}
+

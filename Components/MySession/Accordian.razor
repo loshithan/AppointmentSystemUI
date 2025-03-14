@@ -1,4 +1,56 @@
-  
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@code{
+  public class ProfessionalAvailability
+        {
+            public Guid Id { get; set; } = Guid.NewGuid();
+            public string ProfessionalId { get; set; } // Foreign Key for Doctor
+            public DateTime AvailableDate { get; set; }
+            public TimeSpan StartTime { get; set; }
+            public TimeSpan EndTime { get; set; }
+            public bool IsBooked { get; set; } = false;
+
+            public string? HospitalName { get; set; }
+            public string? HospitalAddress { get; set; }
+
+            public Specialisation? Specialisation { get; set; }
+            public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        }
+        public enum Specialisation
+        {
+            GeneralPhysician,
+            Cardiologist,
+            Dermatologist,
+            Gynecologist,
+            Neurologist,
+            Ophthalmologist,
+            OrthopedicSurgeon,
+            Pediatrician,
+            Psychiatrist,
+            Radiologist,
+            Urologist
+        }
+  public List<ProfessionalAvailability> ProfessionalAvailabilities { get; set; } = new List<ProfessionalAvailability>();
+  protected override async Task OnInitializedAsync()
+  {
+    // Replace with your API endpoint
+    var baseUrl = Configuration["ApiSettings:BaseUrl"];
+    var apiUrl = $"{baseUrl}/api/ProfessionalAvailability";
+
+    try
+    {
+      // Fetch data from the API
+      var professionalAvailabilities = await Http.GetFromJsonAsync<List<ProfessionalAvailability>>(apiUrl);
+      ProfessionalAvailabilities = professionalAvailabilities;
+
+    }
+    catch (Exception ex)
+    {
+      // Handle errors (e.g., log or display a message)
+      Console.WriteLine($"Error fetching appointments: {ex.Message}");
+    }
+  }
+}  
 <!-- Accordion Item 1 -->
 <div class="border-b border-slate-200">
   <button onclick="toggleAccordion(1)" class="w-full flex justify-between items-center py-5 text-slate-800">
