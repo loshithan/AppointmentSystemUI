@@ -1,7 +1,33 @@
 ﻿@page "/"
 @using AppointmentUI.Components.Common
+@using AppointmentUI.Components.Domain
+@inject HttpClient Http
+@inject IConfiguration Configuration
 
 <PageTitle>Home</PageTitle>
+
+@code{
+    List<ApplicationUser> doctors = new List<ApplicationUser>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var baseUrl = Configuration["ApiSettings:BaseUrl"];
+        var apiUrl = $"{baseUrl}/api/ProfessionalAvailability/professionals";
+
+        try
+        {
+            var doctorData = await Http.GetFromJsonAsync<List<DoctorWithAvailabilitiesDto>>(apiUrl);
+            if (doctorData != null)
+            {
+                doctors = doctorData.Select(d => d.Doctor).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching doctors: {ex.Message}");
+        }
+    }
+}
 
 <h1 class="text-4xl font-bold text-gray-900 mt-5">Hello, Loshithan!</h1>
 <form class="bg-[#dbd9d999] shadow-md rounded px-3 pt-6 pb-8 mb-4 mt-5">
@@ -39,7 +65,8 @@
 </form>
 <hr class=" mt-[50px]">
 <div class="flex flex-wrap flex-row" style="gap: 16px;">
-  <DoctorProfileCard />
-  <DoctorProfileCard />
-  <DoctorProfileCard />
+  @{foreach (var doctor in doctors)
+  {
+      <DoctorProfileCard doctor="@doctor" />
+  }}
 </div>

@@ -1,11 +1,23 @@
+@using AppointmentUI.Components.Domain
 @inject IDialogService Dialog
 @code {
+    [Parameter]
+    public ProfessionalAvailability Session { get; set; }
+    [Parameter]
+    public string DoctorName { get; set; }
     private Task OpenDialogAsync()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
+// Create DialogParameters and add the parameters you want to pass
+    var parameters = new DialogParameters
+    {
+        @* { "DoctorName", DoctorName }, // Example: Pass DoctorName *@
+        { "SessionId", Session.Id }   // Example: Pass Session ID
+    };
 
-        return Dialog.ShowAsync<BookingForm>("Simple Dialog", options);
-     }
+    // Pass the parameters to the dialog
+    return Dialog.ShowAsync<BookingForm>("Simple Dialog", parameters, options);
+    }
 }
 <div class=" mx-auto my-5">
     <div
@@ -15,27 +27,33 @@
 
         <div class="flex flex-row gap-2 py-2 w-full">
             <div class=" flex flex-col gap-1 w-full justify-center">
-                <p class="text-xl font-bold w-full text-[#4e5055de]">W G Gunawardena</p>
+                <p class="text-xl font-bold w-full text-[#4e5055de]">@DoctorName</p>
 
 
 
             </div>
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="text-gray-500 w-full">
-                    January 25, 2025
+                    @Session.AvailableDate
                 </p>
             </div>
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="text-gray-500 w-full">
-                    03:00 PM - 03:30 PM <span>(Evening)</span>
+                    @Session.StartTime PM - @Session.EndTime PM <span>(Evening)</span>
                 </p>
             </div>
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="text-gray-500 w-full">
                 <div class="flex items-center space-x-2">
+                    @if (!Session.IsBooked)
+                    {
                     <Button OnClick="OpenDialogAsync">Available</Button>
+                    }else{
+                    <Button OnClick="OpenDialogAsync" Disabled="true">Unavailable</Button>
+
+                    }
                 </div>
-                
+
                 </p>
             </div>
 

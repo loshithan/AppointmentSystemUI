@@ -1,3 +1,8 @@
+@using AppointmentUI.Components.Domain
+@using Microsoft.AspNetCore.WebUtilities
+@inject HttpClient Http
+@inject IConfiguration Configuration
+@inject NavigationManager Navigation
 <MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
     <TitleContent>
         <p class="text-3xl font-bold">Booking</p> <!-- Increased font size -->
@@ -5,7 +10,8 @@
     <DialogContent>
         <form>
             <div class="flex flex-col gap-6 p-6"> <!-- Increased padding and gap -->
-                <div class="flex-1">
+                <p>Do you want to Confirm booking?</p>
+                @* <div class="flex-1">
                     <label class="block text-gray-700 text-lg font-bold mb-3" for="doctorName"> <!-- Increased font size -->
                         Patient name
                     </label>
@@ -20,13 +26,13 @@
                     <input
                         class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
                         id="username" type="text" placeholder="NIC number">
-                </div>
+                </div> *@
             </div>
         </form>
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Primary" OnClick="Submit">Booking now</MudButton>
-<MudButton Variant="Variant.Filled" Color="Color.Secondary">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -34,7 +40,61 @@
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+     [Parameter]
+    public Guid SessionId { get; set; } // Parameter to receive Session ID
 
+    private string PatientId { get; set; } = "4127bae2-4c84-4bfb-bc10-b330e5c4151c";
+    private string ProfessionalId { get; set; } 
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var uri = new Uri(Navigation.Uri);
+        var queryParams = QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryParams.TryGetValue("patientId", out var patientId))
+        {
+            PatientId = patientId;
+        }
+        if (queryParams.TryGetValue("doctorId", out var doctorId))
+        {
+            ProfessionalId = doctorId;
+        }
+
+    }
+
+    private async void Submit()
+    {
+        var baseUrl = Configuration["ApiSettings:BaseUrl"];
+        var apiUrl = $"{baseUrl}/api/Appointment";
+        var availabilityUrl = $"{baseUrl}/api/ProfessionalAvailability/{SessionId}";
+
+        try
+        {
+            var editresult = await Http.PutAsJsonAsync<ProfessionalAvailability>(availabilityUrl, new ProfessionalAvailability
+            {
+                Id = SessionId,
+                IsBooked = true
+            });
+           
+            var result = await Http.PostAsJsonAsync<Appointment>(apiUrl, new Appointment
+            {
+                PatientId = PatientId,
+                ProfessionalId = ProfessionalId,
+                AppointmentDate = DateTime.Now,
+                CreatedAt = DateTime.Now,
+                Status = AppointmentStatus.Pending
+            });
+            if (result.StatusCode == System.Net.HttpStatusCode.Created )
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+          
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching doctors: {ex.Message}");
+        }
+    }
     private void Cancel() => MudDialog.Cancel();
 }

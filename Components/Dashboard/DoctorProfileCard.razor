@@ -1,3 +1,15 @@
+@using AppointmentUI.Components.Domain
+@inject NavigationManager Navigation
+@inject IConfiguration Configuration
+@code {
+    [Parameter]
+    public ApplicationUser Doctor { get; set; }
+
+    public void HandleClick(){
+        var baseUrl = Configuration["ClientSettings:BaseUrl"];
+        Navigation.NavigateTo($"{baseUrl}/availablesessions?doctorname={Doctor.UserName}&doctorId={Doctor.Id}&");
+    }
+}
 <div class="mx-2 w-[25%]">
 
     <div
@@ -17,7 +29,7 @@
 
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="flex text-2xl items-center justify-center font-bold w-full">
-                    A B J Abdulla
+                    @Doctor.UserName
                 </p>
             </div>
 
@@ -28,7 +40,7 @@
                 </span>
             </div>
             <div class=" flex flex-col gap-1 w-50 justify-center">
-                <Button>View Profile</Button>
+                <Button @onclick="HandleClick">View Profile</Button>
             </div>
 
         </div>
