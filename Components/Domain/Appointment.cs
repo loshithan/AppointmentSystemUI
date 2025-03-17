@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,6 +15,9 @@ namespace AppointmentUI.Components.Domain
         public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+        // Foreign Key for ProfessionalAvailability
+        public Guid? ProfessionalAvailabilityId { get; set; }
+        public ProfessionalAvailability? ProfessionalAvailability { get; set; }
 
     }
      public enum AppointmentStatus

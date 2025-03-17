@@ -2,25 +2,12 @@
 @rendermode InteractiveServer
 @inject HttpClient Http
 @inject IConfiguration Configuration
+@using AppointmentUI.Components.Domain;
+
 @code {
 
   public List<Appointment> Appointments { get; set; } = new List<Appointment>();
-  public class Appointment
-  {
-      public Guid Id { get; set; } = Guid.NewGuid();
-        public string PatientId { get; set; }  // Foreign Key for Patient
-        public string ProfessionalId { get; set; }   // Foreign Key for Doctor
-        public DateTime AppointmentDate { get; set; }
-        public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-  }
-    public enum AppointmentStatus
-    {
-        Pending,
-        Confirmed,
-        Canceled
-    }
+  // Use the Appointment class from the Domain namespace
   protected override async Task OnInitializedAsync()
   {
     // Replace with your API endpoint
@@ -83,14 +70,21 @@
   </div>
 </form>
 <hr class=" mt-[50px] mb-[50px]">
-<div class=" flex justify-end gap-3">
+@* <div class=" flex justify-end gap-3">
   <Button>Add Appointment</Button>
 
-</div>
+</div> *@
 @{
-  foreach (var appointment in Appointments)
+  if (Appointments.Count == 0)
   {
-    <AppointmentCard />
+    <p class="text-red-500">No appointments available</p>
   }
-}
+  else
+  {
+    foreach (var appointment in Appointments)
+    {
+      <AppointmentCard Appointment="appointment" />
+    }
+  }
 
+}

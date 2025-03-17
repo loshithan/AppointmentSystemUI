@@ -1,3 +1,9 @@
+@using AppointmentUI.Components.Domain
+@code {
+    [Parameter]
+    public ProfessionalAvailability Availability { get; set; }
+}
+
 <div class=" mx-auto my-5">
     <div
         class="flex gap-3 bg-white border border-gray-300 rounded-xl overflow-hidden items-center justify-start mt-5 px-4">
@@ -6,26 +12,34 @@
 
         <div class="flex flex-row gap-2 py-2 w-full">
             <div class=" flex flex-col gap-1 w-full justify-center">
-                <p class="text-xl font-bold w-full text-[#4e5055de]">W G Gunawardena</p>
+                <p class="text-xl font-bold w-full text-[#4e5055de]">Dr.Name</p>
 
 
 
             </div>
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="text-gray-500 w-full">
-                    January 25, 2025
+                    @Availability.AvailableDate
                 </p>
             </div>
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="text-gray-500 w-full">
-                    03:00 PM - 03:30 PM <span>(Evening)</span>
+                    @Availability.StartTime - @Availability.EndTime <span>(Evening)</span>
                 </p>
             </div>
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="text-gray-500 w-full">
                 <div class="flex items-center space-x-2">
+                    @if (!Availability.IsBooked)
+                    {
                     <span class="w-4 h-4 bg-yellow-500 rounded-full"></span>
                     <span class=" text-gray-500">Pending</span>
+
+                    }else{
+                    <span class="w-4 h-4 bg-red-500 rounded-full"></span>
+                    <span class=" text-gray-500">Booked</span>
+
+                    }
                 </div>
                 </p>
             </div>

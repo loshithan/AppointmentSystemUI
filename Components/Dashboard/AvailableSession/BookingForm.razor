@@ -83,7 +83,8 @@
                 ProfessionalId = ProfessionalId,
                 AppointmentDate = DateTime.Now,
                 CreatedAt = DateTime.Now,
-                Status = AppointmentStatus.Pending
+                Status = AppointmentStatus.Pending,
+                ProfessionalAvailabilityId = SessionId
             });
             if (result.StatusCode == System.Net.HttpStatusCode.Created )
             {

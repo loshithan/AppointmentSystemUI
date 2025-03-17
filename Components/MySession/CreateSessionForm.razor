@@ -1,57 +1,139 @@
-
+@using AppointmentUI.Components.Domain
+@using static System.Net.WebRequestMethods
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject NavigationManager Navigation
 <MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
     <TitleContent>
         <p class="text-3xl font-bold">Add Session</p> <!-- Increased font size -->
     </TitleContent>
+
     <DialogContent>
-        <form>
+        <form @onsubmit="Submit">
             <div class="flex flex-col gap-6 p-6"> <!-- Increased padding and gap -->
+                
                 <div class="flex-1">
-                    <label class="block text-gray-700 text-lg font-bold mb-3" for="doctorName"> <!-- Increased font size -->
-                        Doctor name
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="appointmentDate">
+                        Appointment Date
                     </label>
-                    <input
-                        class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
-                        id="username" type="text" placeholder="Doctor name">
+                    <input class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg"
+                        id="appointmentDate" type="date" placeholder="Appointment date"
+                        @bind-value="AppointmentDate" required>
+                </div>
+
+                <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="startTime">
+                        Appointment Start Time
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg"
+                        id="startTime" type="time" placeholder="Start Time"
+                        @bind-value="StartTime" @bind-value:event="oninput" required>
+                </div>
+
+                <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="endTime">
+                        Appointment End Time
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg"
+                        id="endTime" type="time" placeholder="End Time"
+                        @bind-value="EndTime" @bind-value:event="oninput" required>
+                </div>
+                 <!-- Specialisation Select -->
+                <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="specialisation">
+                        Specialisation
+                    </label>
+                    <select class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg"
+                        id="specialisation" @bind="Specialisation" required>
+                        @foreach (Specialisation speciality in Enum.GetValues(typeof(Specialisation)))
+                        {
+                            <option value="@speciality">@speciality</option>
+                        }
+                    </select>
+                </div>
+               <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="hospitalName">
+                        Hospital Name
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg"
+                        id="hospitalName" type="text" placeholder="Hospital Name"
+                        @bind-value="HospitalName" @bind-value:event="oninput" required>
+                </div>
+
+                <div class="flex-1">
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="hospitalAddress">
+                        Hospital Address
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg"
+                        id="hospitalAddress" type="text" placeholder="Hospital Address"
+                        @bind-value="HospitalAddress" @bind-value:event="oninput" required>
                 </div>
                 <div class="flex-1">
-                    <label class="block text-gray-700 text-lg font-bold mb-3" for="specialization"> <!-- Increased font size -->
-                        Appointment date
+                    <label class="block text-gray-700 text-lg font-bold mb-3" for="Price">
+                        Price
                     </label>
-                    <input
-                        class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
-                        id="username" type="text" placeholder="Appointment date">
+                    <input class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg"
+                        id="Price" type="text" placeholder="Price"
+                        @bind-value="Price" @bind-value:event="oninput" required>
                 </div>
-                 <div class="flex-1">
-                    <label class="block text-gray-700 text-lg font-bold mb-3" for="specialization"> <!-- Increased font size -->
-                        Appointment start time
-                    </label>
-                    <input
-                        class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
-                        id="username" type="text" placeholder="Appointment Date">
-                </div>
-                 <div class="flex-1">
-                    <label class="block text-gray-700 text-lg font-bold mb-3" for="specialization"> <!-- Increased font size -->
-                        Appointment end time
-                    </label>
-                    <input
-                        class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg" 
-                        id="username" type="text" placeholder="Appointment Date">
-                </div>
+
             </div>
         </form>
     </DialogContent>
+
     <DialogActions>
         <MudButton Color="Color.Primary" OnClick="Submit">Add</MudButton>
-<MudButton Variant="Variant.Filled" Color="Color.Secondary">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="Cancel">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
     [CascadingParameter]
+
     private IMudDialogInstance MudDialog { get; set; }
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    private DateTime? AppointmentDate { get; set; }
+    private TimeOnly? StartTime { get; set; }
+    private TimeOnly? EndTime { get; set; }
+ private string? HospitalName { get; set; }
+    private string? HospitalAddress { get; set; }
+        private string? Price { get; set; }
 
+        private Specialisation Specialisation { get; set; }
+
+    private async void Submit()
+    {
+        if (AppointmentDate == null || StartTime == null || EndTime == null)
+        {
+            return; // Prevent submission if fields are empty
+        }
+
+         var baseUrl = Configuration["ApiSettings:BaseUrl"];
+        var apiUrl = $"{baseUrl}/api/ProfessionalAvailability";
+
+    try
+    {
+        var availability = new ProfessionalAvailability
+    {
+        ProfessionalId = "A79E56D6-1E30-450B-B746-9A447D083E73",
+        AvailableDate = AppointmentDate.Value,
+        StartTime = StartTime.Value.ToTimeSpan(),
+        EndTime = EndTime.Value.ToTimeSpan(),
+        HospitalName = HospitalName,
+        HospitalAddress = HospitalAddress,
+        Specialisation = Specialisation,
+        Price = Price
+    };
+      // Fetch data from the API
+    var response = await Http.PostAsJsonAsync(apiUrl, availability);
+    }
+    catch (Exception ex)
+    {
+      // Handle errors (e.g., log or display a message)
+      Console.WriteLine($"Error fetching appointments: {ex.Message}");
+    }
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
     private void Cancel() => MudDialog.Cancel();
 }

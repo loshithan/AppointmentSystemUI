@@ -1,9 +1,14 @@
-<div class=" mx-auto my-5">
+@using AppointmentUI.Components.Domain
+@code {
+    [Parameter]
+    public Appointment Appointment { get; set; }
+}
+
+<div class="mx-auto my-5">
     <div>
-        <h2>Wednesday,05 Mar 2025</h2>
+        <h2>@(Appointment?.AppointmentDate.ToString("dd MMM yyyy HH:mm") ?? "N/A")</h2>
     </div>
-    <div
-        class="flex gap-3 bg-white border border-gray-300 rounded-xl overflow-hidden items-center justify-start mt-5 px-4">
+    <div class="flex gap-3 bg-white border border-gray-300 rounded-xl overflow-hidden items-center justify-start mt-5 px-4">
 
         <div class="relative w-32 h-32 flex-shrink-0">
             <img class="absolute left-0 top-0 w-full h-full object-cover object-center transition duration-50"
@@ -11,36 +16,32 @@
         </div>
 
         <div class="flex flex-row gap-2 py-2 w-full">
-            <div class=" flex flex-col gap-1 w-full justify-center">
-                <p class="text-xl font-bold w-full">Hospital Name</p>
-                <p>Venue</p>
-                <p>Specialisation</p>
-
-
-            </div>
-            <div class=" flex flex-col gap-1 w-full justify-center">
-                <p class="text-gray-500 w-full">
-                    03:00 PM
+            <div class="flex flex-col gap-1 w-full justify-center">
+                <p class="text-xl font-bold w-full">
+                    @(Appointment?.ProfessionalAvailability?.HospitalName ?? "N/A")
                 </p>
-                <p>Evening</p>
+                <p>@(Appointment?.ProfessionalAvailability?.HospitalAddress ?? "N/A")</p>
+                <p>@(Appointment?.ProfessionalAvailability?.Specialisation ?? Specialisation.Orthopedics)</p>
             </div>
 
+            <div class="flex flex-col gap-1 w-full justify-center">
+                <p class="text-gray-500 w-full">
+                    @(Appointment?.ProfessionalAvailability?.StartTime)
+                </p>
+            </div>
 
-            <div class=" flex flex-col gap-1 w-full justify-center">
+            <div class="flex flex-col gap-1 w-full justify-center">
                 <span class="flex items-center justify-start text-gray-500 w-full">
-                    Rs 4200
+                    Rs @(Appointment?.ProfessionalAvailability?.Price?.ToString() ?? "N/A")
                 </span>
                 <p>Channel fee</p>
             </div>
-            <div class=" flex flex-col gap-1 w-50 justify-center">
-                <button
-                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ">
+
+            <div class="flex flex-col gap-1 w-50 justify-center">
+                <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                     Cancel
                 </button>
             </div>
-
         </div>
-
     </div>
-
 </div>

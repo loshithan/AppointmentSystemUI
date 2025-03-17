@@ -19,6 +19,8 @@ namespace AppointmentUI.Components.Domain
 
             public Specialisation? Specialisation { get; set; } = null;
             public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+            public string Price{get;set;}
+            
     }
     public enum Specialisation
         {
