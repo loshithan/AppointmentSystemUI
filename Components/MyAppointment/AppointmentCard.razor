@@ -1,7 +1,32 @@
 @using AppointmentUI.Components.Domain
+@using static System.Net.WebRequestMethods
+@inject IConfiguration Configuration
+@inject HttpClient Http
 @code {
     [Parameter]
     public Appointment Appointment { get; set; }
+
+    private async Task HandleClick(){
+        var baseUrl = Configuration["ApiSettings:BaseUrl"];
+        var apiUrl = $"{baseUrl}/api/Appointment/{Appointment.Id}";
+        try
+        {
+            var response = await Http.DeleteAsync(apiUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                // Handle success
+            }
+            else
+            {
+                // Handle failure
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching appointments: {ex.Message}");
+        }
+    }
 }
 
 <div class="mx-auto my-5">
@@ -38,7 +63,7 @@
             </div>
 
             <div class="flex flex-col gap-1 w-50 justify-center">
-                <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                <button @onclick="HandleClick" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                     Cancel
                 </button>
             </div>
