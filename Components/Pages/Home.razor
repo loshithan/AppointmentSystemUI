@@ -1,8 +1,9 @@
 ﻿@page "/"
 @using AppointmentUI.Components.Common
 @using AppointmentUI.Components.Domain
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
+@attribute [Authorize]
 
 <PageTitle>Home</PageTitle>
 
@@ -11,12 +12,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var baseUrl = Configuration["ApiSettings:BaseUrl"];
-        var apiUrl = $"{baseUrl}/api/ProfessionalAvailability/professionals";
+              var httpClient = HttpClientFactory.CreateClient("ApiClient");
+
+        @* var baseUrl = Configuration["ApiSettings:BaseUrl"];
+        var apiUrl = $"{baseUrl}/api/ProfessionalAvailability/professionals"; *@
 
         try
         {
-            var doctorData = await Http.GetFromJsonAsync<List<DoctorWithAvailabilitiesDto>>(apiUrl);
+            var doctorData = await httpClient.GetFromJsonAsync<List<DoctorWithAvailabilitiesDto>>("ProfessionalAvailability/professionals");
             if (doctorData != null)
             {
                 doctors = doctorData.Select(d => d.Doctor).ToList();
@@ -30,6 +33,7 @@
 }
 
 <h1 class="text-4xl font-bold text-gray-900 mt-5">Hello, Loshithan!</h1>
+<AuthorizeView>
 <form class="bg-[#dbd9d999] shadow-md rounded px-3 pt-6 pb-8 mb-4 mt-5">
   <div class="flex flex-row gap-3">
     <div class="flex-1">
@@ -70,3 +74,4 @@
       <DoctorProfileCard doctor="@doctor" />
   }}
 </div>
+</AuthorizeView>

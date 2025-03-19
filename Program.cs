@@ -1,4 +1,8 @@
+using System.Security.AccessControl;
 using AppointmentUI.Components;
+using AppointmentUI.Components.Services;
+using BlazorServer.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor.Services;
 
 
@@ -7,6 +11,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Register custom services
+builder.Services.AddScoped<CookieService>();
+builder.Services.AddScoped<AccessTokenService>();
+builder.Services.AddScoped<AuthService>();
+// builder.Services.AddTransient<AuthTokenHandler>();
+
+// Configure HttpClient for API communication
+builder.Services.AddHttpClient("ApiClient", opt =>
+{
+    opt.BaseAddress = new Uri("http://localhost:5047/api/"); // Replace with your API base URL
+});
+//.AddHttpMessageHandler<AuthTokenHandler>(); // Add the custom handler;
+
+// Add authentication and authorization
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication().AddScheme<CustomOptions, JMTAuthenticationHandler>("JWTAuth", opt => { });
+builder.Services.AddScoped<JMTAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, JMTAuthenticationStateProvider>();
+
+builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddMudServices();
 builder.Services.AddHttpClient(); // Register HttpClient
@@ -23,15 +48,6 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path == "/")
-    {
-        context.Response.Redirect("/login");
-        return;
-    }
-    await next();
-});
 
 app.UseHttpsRedirection();
 
