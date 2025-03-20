@@ -16,6 +16,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<CookieService>();
 builder.Services.AddScoped<AccessTokenService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
 // builder.Services.AddTransient<AuthTokenHandler>();
 
 // Configure HttpClient for API communication

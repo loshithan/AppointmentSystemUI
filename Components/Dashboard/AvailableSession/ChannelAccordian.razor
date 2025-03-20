@@ -1,8 +1,10 @@
 @using AppointmentUI.Components.Domain
+@using System.Net.Http.Headers
+@using AppointmentUI.Components.Services
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
-@inject HttpClient Http
-
+@inject IHttpClientFactory HttpClientFactory
+@inject AccessTokenService AccessTokenService
 @code {
     [Parameter]
     public string? DoctorName { get; set; }
@@ -11,7 +13,41 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var baseUrl = Configuration["ApiSettings:BaseUrl"];
+        var Http = HttpClientFactory.CreateClient("ApiClient");
+
+        try
+        {
+            var token = await AccessTokenService.GetTokenAsync();
+            // Create an HttpRequestMessage
+            var request = new HttpRequestMessage(HttpMethod.Get, $"ProfessionalAvailability/professionals?DoctorName={DoctorName}");
+
+            // Add the Authorization header if the token exists
+            if (!string.IsNullOrEmpty(token))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            // Send the request
+            var response = await Http.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Read and parse the response
+                var result = await response.Content.ReadFromJsonAsync<List<DoctorWithAvailabilitiesDto>>();
+                Sessions = result?.SelectMany(d => d.Availabilities).ToList() ?? new List<ProfessionalAvailability>();
+
+            }
+            else
+            {
+                // Handle API errors (e.g., unauthorized or server errors)
+                Console.WriteLine($"API request failed: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle errors (e.g., log or display a message)
+            Console.WriteLine($"Error fetching professional availabilities: {ex.Message}");
+        }
+        @* var baseUrl = Configuration["ApiSettings:BaseUrl"];
         var apiUrl = $"{baseUrl}/api/ProfessionalAvailability/professionals?DoctorName={DoctorName}";
 
         try
@@ -22,15 +58,15 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching doctors: {ex.Message}");
-        }
+        } *@
     }
 
     // Group sessions by HospitalName
     private Dictionary<string, List<ProfessionalAvailability>> GetGroupedSessions()
     {
         return Sessions
-            .GroupBy(s => s.HospitalName) // Group by HospitalName
-            .ToDictionary(g => g.Key, g => g.ToList()); // Convert to Dictionary
+        .GroupBy(s => s.HospitalName) // Group by HospitalName
+        .ToDictionary(g => g.Key, g => g.ToList()); // Convert to Dictionary
     }
 }
 
@@ -46,7 +82,8 @@
             <span class="text-[#5333ed] text-2xl font-bold">@hospitalName</span>
             <span id="icon-@index" class="text-slate-800 transition-transform duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-                    <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
+                    <path
+                        d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
                 </svg>
             </span>
         </button>

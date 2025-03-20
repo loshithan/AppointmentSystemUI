@@ -3,20 +3,22 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace AppointmentUI.Components.Services
 {
-    public class JMTAuthenticationStateProvider: AuthenticationStateProvider
+    public class JMTAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly AccessTokenService _accessTokenService;
-
+        private readonly IHttpClientFactory _httpClientFactory;
         // Constructor to inject AccessTokenService
-        public JMTAuthenticationStateProvider(AccessTokenService accessTokenService)
+        public JMTAuthenticationStateProvider(AccessTokenService accessTokenService, IHttpClientFactory httpClientFactory)
         {
             _accessTokenService = accessTokenService;
+            _httpClientFactory = httpClientFactory;
         }
 
         // Override method to get the authentication state
@@ -42,6 +44,10 @@ namespace AppointmentUI.Components.Services
 
                 // Create a ClaimsPrincipal from the ClaimsIdentity
                 var principal = new ClaimsPrincipal(identity);
+
+                var _httpClient = _httpClientFactory.CreateClient("ApiClient");
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+
 
                 // Return the AuthenticationState with the authenticated principal
                 return await Task.FromResult(new AuthenticationState(principal));

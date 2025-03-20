@@ -1,7 +1,10 @@
 @page "/professional-availabilities"
 @using AppointmentUI.Components.Domain
+@using AppointmentUI.Components.Services
+@using System.Net.Http.Headers
 @inject IConfiguration Configuration
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+@inject AccessTokenService AccessTokenService
 
 @code {
     
@@ -9,15 +12,33 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Replace with your API endpoint
-        var baseUrl = Configuration["ApiSettings:BaseUrl"];
-        var apiUrl = $"{baseUrl}/api/ProfessionalAvailability";
+        var Http = HttpClientFactory.CreateClient("ApiClient");
 
         try
         {
-            // Fetch data from the API
-            ProfessionalAvailabilities = await Http.GetFromJsonAsync<List<ProfessionalAvailability>>(apiUrl);
-        }
+            var token = await AccessTokenService.GetTokenAsync();
+            // Create an HttpRequestMessage
+            var request = new HttpRequestMessage(HttpMethod.Get, "ProfessionalAvailability");
+
+            // Add the Authorization header if the token exists
+            if (!string.IsNullOrEmpty(token))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+             // Send the request
+            var response = await Http.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Read and parse the response
+                ProfessionalAvailabilities = await response.Content.ReadFromJsonAsync<List<ProfessionalAvailability>>();
+            }
+            else
+            {
+                // Handle API errors (e.g., unauthorized or server errors)
+                Console.WriteLine($"API request failed: {response.StatusCode}");
+            }
+     }
         catch (Exception ex)
         {
             // Handle errors (e.g., log or display a message)
@@ -83,4 +104,4 @@
             icon.innerHTML = minusSVG;
         }
     }
-</script>
+</script>   

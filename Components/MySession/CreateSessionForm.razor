@@ -1,8 +1,11 @@
 @using AppointmentUI.Components.Domain
+@using AppointmentUI.Components.Services
 @using static System.Net.WebRequestMethods
 @inject IConfiguration Configuration
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject UserService UserService
+
 <MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
     <TitleContent>
         <p class="text-3xl font-bold">Add Session</p> <!-- Increased font size -->
@@ -110,12 +113,20 @@
 
          var baseUrl = Configuration["ApiSettings:BaseUrl"];
         var apiUrl = $"{baseUrl}/api/ProfessionalAvailability";
+         // Retrieve the UserId from the claims
+        var userId = await UserService.GetUserIdAsync();
+        if (string.IsNullOrEmpty(userId))
+        {
+            Console.WriteLine("UserId is missing or user is not authenticated.");
+            return;
+        }
 
     try
     {
         var availability = new ProfessionalAvailability
     {
-        ProfessionalId = "A79E56D6-1E30-450B-B746-9A447D083E73",
+        
+        ProfessionalId = userId,
         AvailableDate = AppointmentDate.Value,
         StartTime = StartTime.Value.ToTimeSpan(),
         EndTime = EndTime.Value.ToTimeSpan(),
