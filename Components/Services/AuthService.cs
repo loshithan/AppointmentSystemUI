@@ -51,6 +51,18 @@ namespace BlazorServer.Services
                 return false;
             }
         }
+          public async Task<bool> RegisterAsync(string userName, string email, string password,string role)
+        {
+            var response = await _client.PostAsJsonAsync("Auth/register", new
+            {
+                UserName = userName,
+                Email = email,
+                Password = password,
+                Role = role
+            });
+
+            return response.IsSuccessStatusCode;
+        }
 
         // Method to handle user logout
         public async Task LogoutAsync()
