@@ -2,6 +2,8 @@
 @code {
     [Parameter]
     public ProfessionalAvailability Availability { get; set; }
+    [Parameter]
+    public string Index { get; set; }
 }
 
 <div class=" mx-auto my-5">
@@ -12,7 +14,7 @@
 
         <div class="flex flex-row gap-2 py-2 w-full">
             <div class=" flex flex-col gap-1 w-full justify-center">
-                <p class="text-xl font-bold w-full text-[#4e5055de]">Dr.Name</p>
+                <p class="text-2xl font-extrabold w-full text-[#4e5055de] ps-[50px]">@Index</p>
 
 
 

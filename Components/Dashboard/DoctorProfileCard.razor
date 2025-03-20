@@ -6,8 +6,9 @@
     public ApplicationUser Doctor { get; set; }
 
     public void HandleClick(){
+        
         var baseUrl = Configuration["ClientSettings:BaseUrl"];
-        Navigation.NavigateTo($"{baseUrl}/availablesessions?doctorname={Doctor.UserName}&doctorId={Doctor.Id}&");
+        Navigation.NavigateTo($"availablesessions?doctorname={Doctor.UserName}&doctorId={Doctor.Id}");
     }
 }
 <div class="mx-2 w-[25%]">

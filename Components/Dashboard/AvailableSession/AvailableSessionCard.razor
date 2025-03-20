@@ -27,7 +27,7 @@
 
         <div class="flex flex-row gap-2 py-2 w-full">
             <div class=" flex flex-col gap-1 w-full justify-center">
-                <p class="text-xl font-bold w-full text-[#4e5055de]">@DoctorName</p>
+                <p class="text-2xl font-extrabold w-full text-[#4e5055de] ps-[50px]">@DoctorName</p>
 
 
 
@@ -42,6 +42,7 @@
                     @Session.StartTime PM - @Session.EndTime PM <span>(Evening)</span>
                 </p>
             </div>
+            <AuthorizeView Roles="Patient,Admin">
             <div class=" flex flex-col gap-1 w-full justify-center">
                 <p class="text-gray-500 w-full">
                 <div class="flex items-center space-x-2">
@@ -56,6 +57,7 @@
 
                 </p>
             </div>
+            </AuthorizeView>
 
 
         </div>

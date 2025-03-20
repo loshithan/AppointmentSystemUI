@@ -7,12 +7,14 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject IConfiguration Configuration
 @inject AccessTokenService AccessTokenService
+@inject UserService UserService
 @attribute [Authorize]
 
 <PageTitle>Home</PageTitle>
 
 @code {
   List<ApplicationUser> doctors = new List<ApplicationUser>();
+    public string UserName { get; set; }
   private bool _isInitialized = false; // Track initialization state
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -20,6 +22,7 @@
         if (firstRender && !_isInitialized)
         {
             _isInitialized = true; // Prevent multiple calls
+            UserName = await UserService.GetUserNameAsync();
             await LoadDoctorsAsync(); // Call the API after prerendering
             StateHasChanged(); // Force UI refresh
         }
@@ -51,7 +54,7 @@
     }
 }
 
-<h1 class="text-4xl font-bold text-gray-900 mt-5">Hello, Loshithan!</h1>
+<h1 class="text-4xl font-bold text-gray-900 mt-5">Hello, @UserName !</h1>
 <AuthorizeView>
   <form class="bg-[#dbd9d999] shadow-md rounded px-3 pt-6 pb-8 mb-4 mt-5">
     <div class="flex flex-row gap-3">

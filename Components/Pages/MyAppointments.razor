@@ -3,6 +3,11 @@
 @inject HttpClient Http
 @inject IConfiguration Configuration
 @using AppointmentUI.Components.Domain;
+@using AppointmentUI.Components.Services
+@using System.Net.Http.Headers
+@inject UserService UserService
+@inject AccessTokenService AccessTokenService
+@inject IHttpClientFactory HttpClientFactory
 
 @code {
 
@@ -10,14 +15,18 @@
   // Use the Appointment class from the Domain namespace
   protected override async Task OnInitializedAsync()
   {
-    // Replace with your API endpoint
-    var baseUrl = Configuration["ApiSettings:BaseUrl"];
-    var apiUrl = $"{baseUrl}/api/Appointment";
+    var Http = HttpClientFactory.CreateClient("ApiClient");
+    var token = await AccessTokenService.GetTokenAsync();
+
+    if (!string.IsNullOrEmpty(token))
+    {
+      Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
 
     try
     {
       // Fetch data from the API
-      var appointments = await Http.GetFromJsonAsync<List<Appointment>>(apiUrl);
+      var appointments = await Http.GetFromJsonAsync<List<Appointment>>("Appointment");
       Appointments = appointments;
 
     }

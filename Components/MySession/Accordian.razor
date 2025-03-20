@@ -70,7 +70,7 @@
         <div id="content-@group.Key" class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
             @foreach (var availability in group)
             {
-                <DoctorCard Availability="availability" />
+                <DoctorCard Index="@((group.ToList().IndexOf(availability)+1).ToString("D2"))" Availability="availability" />
             }
         </div>
     </div>
