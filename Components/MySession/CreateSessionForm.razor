@@ -1,10 +1,14 @@
 @using AppointmentUI.Components.Domain
 @using AppointmentUI.Components.Services
+@using System.Net.Http.Headers
 @using static System.Net.WebRequestMethods
 @inject IConfiguration Configuration
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject UserService UserService
+@inject ISnackbar Snackbar
+@inject IHttpClientFactory HttpClientFactory
+@inject AccessTokenService AccessTokenService
 
 <MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
     <TitleContent>
@@ -110,9 +114,13 @@
         {
             return; // Prevent submission if fields are empty
         }
+         var Http = HttpClientFactory.CreateClient("ApiClient");
+    var token = await AccessTokenService.GetTokenAsync();
 
-         var baseUrl = Configuration["ApiSettings:BaseUrl"];
-        var apiUrl = $"{baseUrl}/api/ProfessionalAvailability";
+    if (!string.IsNullOrEmpty(token))
+    {
+      Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
          // Retrieve the UserId from the claims
         var userId = await UserService.GetUserIdAsync();
         if (string.IsNullOrEmpty(userId))
@@ -136,8 +144,18 @@
         Price = Price
     };
       // Fetch data from the API
-    var response = await Http.PostAsJsonAsync(apiUrl, availability);
+    var response = await Http.PostAsJsonAsync("ProfessionalAvailability", availability);
+     if(response.IsSuccessStatusCode)
+    {
+        Snackbar.Add("Appointment created successfully", Severity.Success);
+      Console.WriteLine("Appointment created successfully");
     }
+    else
+    {
+        Snackbar.Add("Failed to create appointment", Severity.Error);
+      Console.WriteLine($"Failed to create appointment: {response.StatusCode}");
+    }
+   }
     catch (Exception ex)
     {
       // Handle errors (e.g., log or display a message)
@@ -146,5 +164,7 @@
 
         MudDialog.Close(DialogResult.Ok(true));
     }
+    
+
     private void Cancel() => MudDialog.Cancel();
 }

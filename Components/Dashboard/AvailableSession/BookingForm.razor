@@ -8,6 +8,7 @@
 @inject UserService UserService
 @inject AccessTokenService AccessTokenService
 @inject IHttpClientFactory HttpClientFactory
+@inject ISnackbar Snackbar
 <MudDialog MaxWidth="MaxWidth.Medium" FullWidth="true">
     <TitleContent>
         <p class="text-3xl font-bold">Booking</p> <!-- Increased font size -->
@@ -91,6 +92,7 @@
 
             if (!editResult.IsSuccessStatusCode)
             {
+                Snackbar.Add("Failed to book appointment", Severity.Error);
                 Console.WriteLine($"Failed to update availability: {editResult.StatusCode}");
                 return;
             }
@@ -108,6 +110,8 @@
 
             if (result.IsSuccessStatusCode)
             {
+                Snackbar.Add("Appointment created successfully", Severity.Success);
+                Console.WriteLine("Appointment created successfully");
                 MudDialog.Close(DialogResult.Ok(true));
             }
             else

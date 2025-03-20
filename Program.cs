@@ -3,6 +3,7 @@ using AppointmentUI.Components;
 using AppointmentUI.Components.Services;
 using BlazorServer.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor;
 using MudBlazor.Services;
 
 
@@ -34,7 +35,18 @@ builder.Services.AddScoped<AuthenticationStateProvider, JMTAuthenticationStatePr
 
 builder.Services.AddCascadingAuthenticationState();
 
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
+
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = false;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 3000;
+    config.SnackbarConfiguration.HideTransitionDuration = 100;
+    config.SnackbarConfiguration.ShowTransitionDuration = 100;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+});
 builder.Services.AddHttpClient(); // Register HttpClient
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration); // Register IConfiguration

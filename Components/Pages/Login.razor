@@ -8,6 +8,7 @@
 @inject IConfiguration Configuration
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 @attribute [AllowAnonymous]
 
 @code {
@@ -31,10 +32,14 @@
        var status = await AuthService.LoginAsync(loginModel.Username,loginModel.Password);
         if (status)
         {
+                                                Snackbar.Add("Loggedin Sucessfully!", Severity.Success);
+
             NavigationManager.NavigateTo("/");
         }
         else
         {
+                                    Snackbar.Add("Invalid email or password.!", Severity.Error);
+
             errorMessage = "Invalid email or password.";
         }
         
