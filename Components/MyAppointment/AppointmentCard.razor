@@ -1,25 +1,58 @@
 @using AppointmentUI.Components.Domain
+@using AppointmentUI.Components.Popup
+@using AppointmentUI.Components.Services
+@using System.Net.Http.Headers
+@using System.Net
 @using static System.Net.WebRequestMethods
 @inject IConfiguration Configuration
 @inject HttpClient Http
+@inject IDialogService DialogService
+@inject IHttpClientFactory HttpClientFactory
+@inject AccessTokenService AccessTokenService
+@inject ISnackbar Snackbar
 @code {
     [Parameter]
     public Appointment Appointment { get; set; }
+    private Task DeleteUserAsync()
+    {
+        var parameters = new DialogParameters<DialogPopup>
+        {
+        { x => x.ContentText, "Do you  want to delete your appointment?" },
+        { x => x.ButtonText, "Delete" },
+        { x => x.Color, Color.Error },
+        { x => x.Submit, EventCallback.Factory.Create(this, HandleClick) }
+        };
 
-    private async Task HandleClick(){
-        var baseUrl = Configuration["ApiSettings:BaseUrl"];
-        var apiUrl = $"{baseUrl}/api/Appointment/{Appointment.Id}";
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        return DialogService.ShowAsync<DialogPopup>("Delete", parameters, options);
+    }
+    private async Task HandleClick()
+    {
+        var Http = HttpClientFactory.CreateClient("ApiClient");
+        var token = await AccessTokenService.GetTokenAsync();
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+        @* var baseUrl = Configuration["ApiSettings:BaseUrl"];
+        var apiUrl = $"{baseUrl}/api/Appointment/{Appointment.Id}"; *@
         try
         {
-            var response = await Http.DeleteAsync(apiUrl);
+            var response = await Http.DeleteAsync($"Appointment/{Appointment.Id}");
             if (response.IsSuccessStatusCode)
             {
-                // Handle success
+                Snackbar.Add("Appointment deleted successfully", Severity.Success);
+
             }
             else
             {
+                Snackbar.Add("Failed to delete appointment", Severity.Error);
                 // Handle failure
             }
+            DialogService.Close(null);
+
 
         }
         catch (Exception ex)
@@ -33,7 +66,8 @@
     <div>
         <h2>@(Appointment?.AppointmentDate.ToString("dd MMM yyyy HH:mm") ?? "N/A")</h2>
     </div>
-    <div class="flex gap-3 bg-white border border-gray-300 rounded-xl overflow-hidden items-center justify-start mt-5 px-4">
+    <div
+        class="flex gap-3 bg-white border border-gray-300 rounded-xl overflow-hidden items-center justify-start mt-5 px-4">
 
         <div class="relative w-32 h-32 flex-shrink-0">
             <img class="absolute left-0 top-0 w-full h-full object-cover object-center transition duration-50"
@@ -63,7 +97,8 @@
             </div>
 
             <div class="flex flex-col gap-1 w-50 justify-center">
-                <button @onclick="HandleClick" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                <button @onclick="DeleteUserAsync"
+                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none">
                     Cancel
                 </button>
             </div>
