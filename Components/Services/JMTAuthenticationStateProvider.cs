@@ -26,35 +26,40 @@ namespace AppointmentUI.Components.Services
         {
             try
             {
-                // Retrieve the token from the AccessTokenService
                 var token = await _accessTokenService.GetTokenAsync();
 
-                // If the token is null or empty, mark the user as unauthorized
                 if (string.IsNullOrWhiteSpace(token))
                 {
                     return await MarkAsUnauthorizedAsync();
                 }
 
-                // Read and validate the JWT token
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
 
-                // Create a ClaimsIdentity from the token's claims
-                var identity = new ClaimsIdentity(jwtToken.Claims, "JWT");
+                var claims = new List<Claim>();
 
-                // Create a ClaimsPrincipal from the ClaimsIdentity
+                if (jwtToken != null)
+                {
+                    claims.AddRange(jwtToken.Claims);
+
+                    // 🔹 Ensure multiple roles are handled correctly
+                    var roleClaims = jwtToken.Claims.Where(c => c.Type == "role" || c.Type == ClaimTypes.Role).ToList();
+
+                    foreach (var roleClaim in roleClaims)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, roleClaim.Value)); // Standardize role claims
+                    }
+                }
+
+                var identity = new ClaimsIdentity(claims, "JWT");
                 var principal = new ClaimsPrincipal(identity);
 
-                var _httpClient = _httpClientFactory.CreateClient("ApiClient");
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+                NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
 
-
-                // Return the AuthenticationState with the authenticated principal
-                return await Task.FromResult(new AuthenticationState(principal));
+                return new AuthenticationState(principal);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // If an exception occurs, mark the user as unauthorized
                 return await MarkAsUnauthorizedAsync();
             }
         }
