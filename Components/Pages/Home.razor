@@ -13,18 +13,59 @@
 <PageTitle>Home</PageTitle>
 
 @code {
-  List<ApplicationUser> doctors = new List<ApplicationUser>();
+    List<ApplicationUser> doctors = new List<ApplicationUser>();
     public string UserName { get; set; }
-  private bool _isInitialized = false; // Track initialization state
+    public string DoctorName { get; set; } = string.Empty;
+    public string Specialization { get; set; } = string.Empty;
+    public string Hospital { get; set; } = string.Empty;
+    public DateTime? SelectedDate { get; set; }
+    
+    private bool _isInitialized = false; // Track initialization state
+    private bool _filtersApplied = false; // Track if filters are applied
 
-  protected override async Task OnAfterRenderAsync(bool firstRender)
+    public async Task ApplyFilters()
+    {
+        var Http = HttpClientFactory.CreateClient("ApiClient");
+        var token = await AccessTokenService.GetTokenAsync();
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        try
+        {
+            var query = $"ProfessionalAvailability/professionals?DoctorName={Uri.EscapeDataString(DoctorName)}&Specialization={Uri.EscapeDataString(Specialization)}&Hospital={Uri.EscapeDataString(Hospital)}&Date={SelectedDate?.ToString("yyyy-MM-dd")}";
+            
+            var response = await Http.GetAsync(query);
+            if (response.IsSuccessStatusCode)
+            {
+                var doctorData = await response.Content.ReadFromJsonAsync<List<DoctorWithAvailabilitiesDto>>();
+                if (doctorData != null)
+                {
+                    doctors = doctorData.Select(d => d.Doctor).ToList();
+                }
+            }
+            _filtersApplied = true; // Mark that filters have been applied
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching appointments: {ex.Message}");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !_isInitialized)
         {
-            _isInitialized = true; // Prevent multiple calls
+            _isInitialized = true;
             UserName = await UserService.GetUserNameAsync();
-            await LoadDoctorsAsync(); // Call the API after prerendering
-            StateHasChanged(); // Force UI refresh
+
+            if (!_filtersApplied) // Only load all doctors if no filters have been applied
+            {
+                await LoadDoctorsAsync();
+                StateHasChanged();
+            }
         }
     }
 
@@ -58,43 +99,29 @@
 <AuthorizeView>
   <form class="bg-[#dbd9d999] shadow-md rounded px-3 pt-6 pb-8 mb-4 mt-5">
     <div class="flex flex-row gap-3">
-      <div class="flex-1">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="doctorName">
-          Doctor name
-        </label>
-        <input
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          id="username" type="text" placeholder="Doctor name">
-      </div>
-      <div class="flex-1">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="specialization">
-          Specialization
-        </label>
-        <input
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          id="username" type="text" placeholder="Specialization">
-      </div>
-      <div class="flex-1">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="hospital">
-          Hospital
-        </label>
-        <input
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          id="username" type="text" placeholder="Hospital">
-      </div>
-      <div class="flex-1">
-        <label class="block text-gray-700 text-sm font-bold mb-2" for="date">
-          Date
-        </label>
-        <input
-          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          id="username" type=" date" placeholder="DD/MM/YYYY">
-      </div>
-      <div class="flex flex-1 items-end justify-between pt-4">
-        <Button>Search</Button>
-
-
-      </div>
+        <div class="flex-1">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="doctorName">Doctor Name</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="doctorName" @bind="DoctorName" type="text" placeholder="Doctor name">
+        </div>
+        <div class="flex-1">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="specialization">Specialization</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="specialization" @bind="Specialization" type="text" placeholder="Specialization">
+        </div>
+        <div class="flex-1">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="hospital">Hospital</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="hospital" @bind="Hospital" type="text" placeholder="Hospital">
+        </div>
+        <div class="flex-1">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="date">Date</label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                   id="date" @bind="SelectedDate" type="date">
+        </div>
+        <div class="flex flex-1 items-end justify-between pt-4">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @onclick="ApplyFilters">Search</button>
+        </div>
     </div>
   </form>
   <hr class=" mt-[50px]">
